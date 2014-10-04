@@ -18,8 +18,8 @@ public:
 	virtual void draw() = 0;
 	virtual float getDiameter() = 0;
 	virtual float getWeight() = 0;
-	virtual float getPosition() = 0;
-	//virtual G308_Point getVelocity() = 0;
+	virtual G308_Point getPosition() = 0;
+	virtual G308_Point getVelocity() = 0;
 
 	GLfloat diameter;
 	GLfloat weight;

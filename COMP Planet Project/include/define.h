@@ -17,10 +17,6 @@
 
 #pragma once
 
-// Default Window 
-#define G308_WIN_WIDTH	800
-#define G308_WIN_HEIGHT	600
-
 // Projection parameters
 #define G308_FOVY		20.0
 #define G308_ZNEAR_3D	1

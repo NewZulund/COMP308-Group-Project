@@ -1,56 +1,40 @@
-//---------------------------------------------------------------------------
-//
-// Copyright (c) 2012 Taehyun Rhee
-//
-// This software is provided 'as-is' for assignment of COMP308
-// in ECS, Victoria University of Wellington,
-// without any express or implied warranty.
-// In no event will the authors be held liable for any
-// damages arising from the use of this software.
-//
-// The contents of this file may not be copied or duplicated in any form
-// without the prior permission of its owner.
-//
-//----------------------------------------------------------------------------
-
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
+#include <GL/glew.h>
 #include <GL/glut.h>
 
-// My definition
 #include "define.h"
 #include "G308_Geometry.h"
 #include "Mass.h"
 #include "Planet.h"
+#include "textfile.cpp"
 #include <iostream>
 #include <math.h>
 
 using namespace std;
 
 // Global Variables
-GLuint g_mainWnd;
-GLuint g_nWinWidth = G308_WIN_WIDTH;
-GLuint g_nWinHeight = G308_WIN_HEIGHT;
-G308_Geometry* g_pGeometry = NULL;
+GLuint g_mainWind;
+GLuint g_windowHeight = 720;
+GLuint g_windowWidth = 1280;
+
 Mass* planets[20];
 
-void G308_Display2();
-void G308_Mouse2(int button, int state, int x, int y);
-
-void G308_Display();
-void G308_Reshape(int w, int h);
-void G308_SetCamera();
-void G308_SetLight();
+void display();
+void reshape(int w, int h);
+void SetCamera();
+void SetLight();
 void G308_Draw3D();
 void G308_Draw2D();
 void G308_Mouse(int button, int state, int x, int y);
 void G308_KeyboardCall(unsigned char key, int x, int y);
-void drawPoints();
 void drawText(char * string, float x, float y);
-void G308_KeyboardSpecialCall(int key, int x, int y);
-void animate(int);
+void keyboardSpecialCall(int key, int x, int y);
 void redisplay();
+void animate(int);
+
+void initShader(GLuint * v, GLuint * f, char * vertFile, char * fragFile, GLuint * prog);
 
 static int TIMERMSECS = 50;
 
@@ -68,15 +52,15 @@ static const int FALSE = 0;
 int main(int argc, char** argv) {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
-	glutInitWindowSize(g_nWinWidth, g_nWinHeight);
-	g_mainWnd = glutCreateWindow("COMP308 Assignment1");
-	glutDisplayFunc(G308_Display);
-	glutReshapeFunc(G308_Reshape);
+	glutInitWindowSize(g_windowWidth, g_windowHeight);
+	g_mainWind = glutCreateWindow("Group Project");
+	glutDisplayFunc(display);
+	glutReshapeFunc(reshape);
 	glutMouseFunc(G308_Mouse);
 	glutKeyboardFunc(G308_KeyboardCall);
 
-	G308_SetLight();
-	G308_SetCamera();
+	SetLight();
+	SetCamera();
 
 	//Mouse Menu
 	glutCreateMenu(mouseMenu);
@@ -90,8 +74,8 @@ int main(int argc, char** argv) {
 
 	Planet * plan = new Planet(10,1,1,1);
 	planets[0] = plan;
-	G308_SetLight();
-	G308_SetCamera();
+	SetLight();
+	SetCamera();
 	G308_Draw3D();
 	G308_Draw2D();
 	glutMainLoop();
@@ -100,18 +84,13 @@ int main(int argc, char** argv) {
 }
 
 void G308_Draw3D() {
-	glutSetWindow(g_mainWnd);
-	float offsetHeight = G308_WIN_HEIGHT / 2;
-	float offsetWidth = G308_WIN_WIDTH / 2;
+	glutSetWindow(g_mainWind);
 
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 
 	glShadeModel(GL_SMOOTH);
-	//glutSolidTeapot(5.0);
 	planets[0]->draw();
-
-
 
 	glPopMatrix();
 
@@ -121,12 +100,6 @@ void G308_Draw3D() {
 void mouseMenu(int key){
 
 }
-
-static float UI_WIDTH = 200;
-static float UI_HEIGHT = 400;
-static float UI_BORDER = 10;
-static float UI_X = g_nWinWidth - UI_WIDTH - UI_BORDER;
-static float UI_Y = g_nWinHeight - UI_BORDER;
 
 void G308_Draw2D() {
 
@@ -138,7 +111,7 @@ void G308_Draw2D() {
 	glPushMatrix();
 	glLoadIdentity();
 
-	gluOrtho2D(0, g_nWinWidth, 0, g_nWinHeight);
+	gluOrtho2D(0, g_windowWidth, 0, g_windowHeight);
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_TEXTURE_2D);
@@ -158,8 +131,8 @@ void G308_Draw2D() {
 
 }
 
-// Display function
-void G308_Display() {
+// display function
+void display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_LIGHTING);
@@ -172,7 +145,7 @@ void G308_Display() {
 	//Apply view rotations
 	glPushMatrix();
 	glLoadIdentity();
-	G308_SetCamera();
+	SetCamera();
 	G308_Draw3D();
 	G308_Draw2D();
 
@@ -191,18 +164,18 @@ void animate(int key){
 }
 
 // Reshape function
-void G308_Reshape(int w, int h) {
+void reshape(int w, int h) {
 	if (h == 0)
 		h = 1;
 
-	g_nWinWidth = w;
-	g_nWinHeight = h;
+	g_windowWidth = w;
+	g_windowHeight = h;
 
-	glViewport(0, 0, g_nWinWidth, g_nWinHeight);
+	glViewport(0, 0, g_windowWidth, g_windowHeight);
 }
 
 // Set Light
-void G308_SetLight() {
+void SetLight() {
 	float direction[] = { 0.0f, 0.0f, 1.0f, 0.0f };
 	float diffintensity[] = { 0.7f, 0.7f, 0.7f, 1.0f };
 	float ambient[] = { 0.2f, 0.2f, 0.2f, 1.0f };
@@ -226,10 +199,10 @@ void G308_Mouse(int button, int state, int x, int y) {
 }
 
 // Set Camera Position
-void G308_SetCamera() {
+void SetCamera() {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(G308_FOVY, (double) g_nWinWidth / (double) g_nWinHeight,
+	gluPerspective(G308_FOVY, (double) g_windowWidth / (double) g_windowHeight,
 	G308_ZNEAR_3D, G308_ZFAR_3D);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -244,10 +217,38 @@ void G308_SetCamera() {
 
 void redisplay(){
 	int i = glutGetWindow();
-	glutSetWindow(g_mainWnd);
+	glutSetWindow(g_mainWind);
 	glutPostRedisplay();
 	glutSetWindow(i);
 
+}
+
+void initShader(GLuint * ver, GLuint * fra, char * vertFile, char * fragFile, GLuint * prog) {
+	GLuint v = *ver;
+	GLuint f = *fra;
+
+	char * vs = NULL;
+	char * fs = NULL;
+	v = glCreateShader(GL_VERTEX_SHADER);
+	f = glCreateShader(GL_FRAGMENT_SHADER);
+	vs = textFileRead(vertFile);
+	fs = textFileRead(fragFile);
+	const char * ff = fs;
+	const char * vv = vs;
+	glShaderSource(v, 1, &vv, NULL);
+	glShaderSource(f, 1, &ff, NULL);
+	free(vs);
+	free(fs);
+	glCompileShader(v);
+	glCompileShader(f);
+	*prog = glCreateProgram();
+	glAttachShader(*prog, f);
+	glAttachShader(*prog, v);
+	glLinkProgram(*prog);
+	glUseProgram(*prog);
+
+	*ver = v;
+	*fra = f;
 
 }
 

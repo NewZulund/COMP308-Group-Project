@@ -10,7 +10,7 @@ SRC = ./src/
 all: $(BUILD)Ass1
 
 $(BUILD)Ass1: $(BUILD)main.o $(BUILD)G308_Geometry.o $(BUILD)Mass.o $(BUILD)Planet.o $(BUILD)Star.o
-	$(CC) -o $@ $^ -lm -lGL -lglut -lGLU $(LPATH) $(LDPATH)
+	$(CC) -o $@ $^ -lm -lGL -lGLEW -lglut -lGLU $(LPATH) $(LDPATH)
 	
 $(BUILD)%.o: $(SRC)%.cpp
 	$(CC) $(CFLAGS) -c -o $@ $^ $(IPATH)

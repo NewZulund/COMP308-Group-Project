@@ -13,31 +13,28 @@ Planet::~Planet() {
 
 Planet::Planet(float diam, float weig, float xP, float yP) {
 	//loat diameter, float weight, float xPos, float yPos
-	// TODO Auto-generated constructor stub
+	diameter = diam;
+	weight = weig;
+	xPos = xP;
+	yPos = yP;
 }
 
 void Planet::draw(){
-
+	glColor3f(1,1,1);
 	glutSolidSphere(diameter/2,20, 20);
 }
 float Planet::getDiameter(){
-
-	//TODO
-	return 1.0f;
+	return diameter;
 }
 float Planet::getWeight(){
-
-	//TODO
-	return 1.0f;
+	return weight;
 }
-float Planet::getPosition(){
-
-	//TODO
-	return 1.0f;
+G308_Point Planet::getPosition(){
+	G308_Point p = {xPos,yPos, 0};
+	return p;
 }
 G308_Point Planet::getVelocity(){
-
-	//TODO
+	//TODO velocity
 	return G308_Point();
 }
 
