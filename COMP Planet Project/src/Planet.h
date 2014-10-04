@@ -8,8 +8,10 @@
 #ifndef PLANET_H_
 #define PLANET_H_
 
+
 #include "define.h"
 #include "G308_Geometry.h"
+#include "G308_ImageLoader.h"
 #include "Mass.h"
 
 class Planet : public Mass{
@@ -21,6 +23,10 @@ public:
 	virtual float getWeight();
 	virtual G308_Point getPosition();
 	virtual G308_Point getVelocity();
+	void ReadTexture(const char* filename);
+private:
+	GLuint heightMap;
+	texInfo HMInfo;
 };
 
 #endif /* PLANET_H_ */

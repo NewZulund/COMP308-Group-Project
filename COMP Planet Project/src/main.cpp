@@ -22,22 +22,22 @@ GLuint g_windowWidth = 1280;
 //Planet Variables
 Mass* planets[20];
 GLuint fragShader, vertShader;
+GLuint dispProg;
 
 void display();
 void reshape(int w, int h);
 void SetCamera();
-void SetLight();
-void G308_Draw3D();
-void G308_Draw2D();
-void G308_Mouse(int button, int state, int x, int y);
-void G308_KeyboardCall(unsigned char key, int x, int y);
+void setLight();
+void draw3D();
+void draw2D();
+void mouse(int button, int state, int x, int y);
+void keyboardCall(unsigned char key, int x, int y);
 void drawText(char * string, float x, float y);
 void keyboardSpecialCall(int key, int x, int y);
 void redisplay();
 void animate(int);
 
 void initShader(GLuint * v, GLuint * f, char * vertFile, char * fragFile, GLuint * prog);
-void initialiseShaders();
 
 static int TIMERMSECS = 50;
 
@@ -49,8 +49,8 @@ float zoom = 0;
 void mouseMenu(int);
 MENU_TYPE animMode = MENU_STOP;
 
-static const int TRUE = 1;
-static const int FALSE = 0;
+//static const int TRUE = 1;
+//static const int FALSE = 0;
 
 
 int main(int argc, char** argv) {
@@ -60,12 +60,17 @@ int main(int argc, char** argv) {
 	g_mainWind = glutCreateWindow("Group Project");
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
-	glutMouseFunc(G308_Mouse);
-	glutKeyboardFunc(G308_KeyboardCall);
+	glutMouseFunc(mouse);
+	glutKeyboardFunc(keyboardCall);
 
-	SetLight();
+	//Initialize GLEW
+	glewInit();
+	initShader(&vertShader, &fragShader, "Shaders/displacementVert.vert", "Shaders/displacementFrag.frag", &dispProg);
+
+
+	setLight();
 	SetCamera();
-	initialiseShaders();
+
 
 	//Mouse Menu
 	glutCreateMenu(mouseMenu);
@@ -79,28 +84,22 @@ int main(int argc, char** argv) {
 
 	Planet * plan = new Planet(10,1,1,1);
 	planets[0] = plan;
-	SetLight();
-	SetCamera();
-	G308_Draw3D();
-	G308_Draw2D();
+	draw3D();
+	draw2D();
 	glutMainLoop();
 
 	return 0;
 }
 
-void initialiseShaders(){
-
-
-
-}
-
-void G308_Draw3D() {
+void draw3D() {
 	glutSetWindow(g_mainWind);
 
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 
 	glShadeModel(GL_SMOOTH);
+	glUseProgram(dispProg);
+
 	planets[0]->draw();
 
 	glPopMatrix();
@@ -112,7 +111,7 @@ void mouseMenu(int key){
 
 }
 
-void G308_Draw2D() {
+void draw2D() {
 
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
@@ -122,24 +121,29 @@ void G308_Draw2D() {
 	glPushMatrix();
 	glLoadIdentity();
 
+	glDisable(GL_LIGHTING);
 	gluOrtho2D(0, g_windowWidth, 0, g_windowHeight);
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_TEXTURE_2D);
-	glDisable(GL_LIGHTING);
 
 	//Transparency
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	glPushMatrix();
-	//2D stuff;
-	glPopMatrix();
+	//Text Over UI
+	drawText("WASD : Spotlight Controls | A/E Cutoff", -0.8f, 0.9f);
+	drawText("ARROW KEYS : Camera Controls | t Rotate models", -0.8f, 0.85f);
+	drawText("Press , or . to zoom in and out", -0.8f, 0.75f);
 
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
 
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_LIGHTING);
 }
 
 // display function
@@ -157,8 +161,10 @@ void display() {
 	glPushMatrix();
 	glLoadIdentity();
 	SetCamera();
-	G308_Draw3D();
-	G308_Draw2D();
+	setLight();
+
+	draw2D();
+	draw3D();
 
 	glPopMatrix();
 
@@ -186,25 +192,52 @@ void reshape(int w, int h) {
 }
 
 // Set Light
-void SetLight() {
-	float direction[] = { 0.0f, 0.0f, 1.0f, 0.0f };
-	float diffintensity[] = { 0.7f, 0.7f, 0.7f, 1.0f };
-	float ambient[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+void setLight() {
+	glPushMatrix();
+	float pointposition[] = { 0.0f, 0.0f, 10.0f, 0.0f };
+	float pointdiffuse[] = { 0.6f, 0.2f, 0.2f, 1.0f };
+	float pointambient[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	float pointspecular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-	glLightfv(GL_LIGHT0, GL_POSITION, direction);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffintensity);
-	glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
-
+	glLightfv(GL_LIGHT0, GL_POSITION, pointposition);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, pointspecular);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, pointdiffuse);
+	glLightfv(GL_LIGHT0, GL_AMBIENT, pointambient);
 	glEnable(GL_LIGHT0);
+
+	glPopMatrix();
 }
 
-void G308_KeyboardCall(unsigned char key, int x, int y) {
-	printf("Key = %c \n", key);
-
+void keyboardCall(unsigned char key, int x, int y) {
+	switch (key) {
+	case 27:
+		exit(0);
+		break;
+	case 'd':
+		yRot += 5;
+		break;
+	case 'a':
+		yRot -= 5;
+		break;
+	case 'w':
+		xRot -= 5;
+		break;
+	case 's':
+		xRot += 5;
+		break;
+	case ',':
+		zoom += 5;
+		break;
+	case '.':
+		zoom -= 5;
+		break;
+	default:
+		break;
+	}
 	glutPostRedisplay();
 }
 
-void G308_Mouse(int button, int state, int x, int y) {
+void mouse(int button, int state, int x, int y) {
 
 	glutPostRedisplay();
 }
@@ -240,6 +273,7 @@ void initShader(GLuint * ver, GLuint * fra, char * vertFile, char * fragFile, GL
 
 	char * vs = NULL;
 	char * fs = NULL;
+
 	v = glCreateShader(GL_VERTEX_SHADER);
 	f = glCreateShader(GL_FRAGMENT_SHADER);
 	vs = textFileRead(vertFile);
@@ -257,9 +291,36 @@ void initShader(GLuint * ver, GLuint * fra, char * vertFile, char * fragFile, GL
 	glAttachShader(*prog, v);
 	glLinkProgram(*prog);
 	glUseProgram(*prog);
-
 	*ver = v;
 	*fra = f;
 
+}
+
+void drawText(char * words, float x, float y) {
+	glUseProgram(0);
+	glPushMatrix();
+	glLoadIdentity();
+
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+	glDisable(GL_LIGHTING);
+	glDisable( GL_DEPTH_TEST);
+	glRasterPos2f(x, y);
+
+	char buf[300];
+	sprintf(buf, words);
+
+	char c = words[0];
+	int i = 0;
+	while (c != '\0') {
+
+		glutBitmapCharacter(GLUT_BITMAP_8_BY_13, c);
+		i++;
+		c = words[i];
+	}
+
+	glEnable(GL_COLOR_MATERIAL);
+	glEnable(GL_LIGHTING);
+	glEnable( GL_DEPTH_TEST);
+	glPopMatrix();
 }
 
