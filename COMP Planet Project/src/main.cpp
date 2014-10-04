@@ -19,7 +19,9 @@ GLuint g_mainWind;
 GLuint g_windowHeight = 720;
 GLuint g_windowWidth = 1280;
 
+//Planet Variables
 Mass* planets[20];
+GLuint fragShader, vertShader;
 
 void display();
 void reshape(int w, int h);
@@ -35,6 +37,7 @@ void redisplay();
 void animate(int);
 
 void initShader(GLuint * v, GLuint * f, char * vertFile, char * fragFile, GLuint * prog);
+void initialiseShaders();
 
 static int TIMERMSECS = 50;
 
@@ -49,6 +52,7 @@ MENU_TYPE animMode = MENU_STOP;
 static const int TRUE = 1;
 static const int FALSE = 0;
 
+
 int main(int argc, char** argv) {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
@@ -61,6 +65,7 @@ int main(int argc, char** argv) {
 
 	SetLight();
 	SetCamera();
+	initialiseShaders();
 
 	//Mouse Menu
 	glutCreateMenu(mouseMenu);
@@ -81,6 +86,12 @@ int main(int argc, char** argv) {
 	glutMainLoop();
 
 	return 0;
+}
+
+void initialiseShaders(){
+
+
+
 }
 
 void G308_Draw3D() {
