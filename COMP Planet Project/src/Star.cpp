@@ -28,10 +28,10 @@ float Star::getWeight(){
 	//TODO
 	return 1.0f;
 }
-float Star::getPosition(){
+G308_Point Star::getPosition(){
 
 	//TODO
-	return 1.0f;
+	return G308_Point();
 }
 G308_Point Star::getVelocity(){
 

@@ -17,8 +17,8 @@ public:
 	virtual void draw();
 	virtual float getDiameter();
 	virtual float getWeight();
-	virtual float getPosition();
-	G308_Point getVelocity();
+	virtual G308_Point getPosition();
+	virtual G308_Point getVelocity();
 };
 
 #endif /* STAR_H_ */
