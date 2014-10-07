@@ -17,6 +17,8 @@ Star::~Star() {
 void Star::draw(){
 
 	//TODO
+	//glutSolidTeapot(2);
+	glutSolidSphere(2,30,30);
 }
 float Star::getDiameter(){
 

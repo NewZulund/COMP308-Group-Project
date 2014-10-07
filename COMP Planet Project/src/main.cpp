@@ -8,6 +8,7 @@
 #include "G308_Geometry.h"
 #include "Mass.h"
 #include "Planet.h"
+#include "Star.h"
 #include "textfile.cpp"
 #include <iostream>
 #include <math.h>
@@ -21,8 +22,8 @@ GLuint g_windowWidth = 1280;
 
 //Planet Variables
 Mass* planets[20];
-GLuint fragShader, vertShader;
-GLuint dispProg;
+GLuint displFragShader, displVertShader, glowFragShader, glowVertShader;
+GLuint dispProg, glowProg;
 
 void display();
 void reshape(int w, int h);
@@ -65,8 +66,8 @@ int main(int argc, char** argv) {
 
 	//Initialize GLEW
 	glewInit();
-	initShader(&vertShader, &fragShader, "Shaders/displacementVert.vert", "Shaders/displacementFrag.frag", &dispProg);
-
+	initShader(&displVertShader, &displFragShader, "Shaders/displacementVert.vert", "Shaders/displacementFrag.frag", &dispProg);
+	initShader(&glowVertShader, &glowFragShader, "Shaders/glowVert.vert", "Shaders/glowFrag.frag", &glowProg);
 
 	setLight();
 	SetCamera();
@@ -85,6 +86,7 @@ int main(int argc, char** argv) {
 	Planet * plan = new Planet(2,1);
 	Star * star = new Star(2,1);
 	planets[0] = plan;
+	planets[1] = star;
 
 	draw3D();
 	draw2D();
@@ -104,6 +106,12 @@ void draw3D() {
 
 	glPushMatrix();
 	planets[0]->draw();
+	glPopMatrix();
+
+	glUseProgram(glowProg);
+	glPushMatrix();
+	glTranslatef(-10,0,0);
+	planets[1]->draw();
 	glPopMatrix();
 
 	glPopMatrix();
