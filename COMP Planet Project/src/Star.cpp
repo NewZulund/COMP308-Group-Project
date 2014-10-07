@@ -7,7 +7,7 @@
 
 #include "Star.h"
 
-Star::Star(float diam, float weig, float xP, float yP) {
+Star::Star(float diam, float weig) {
 	// TODO Auto-generated constructor stub
 }
 

@@ -12,7 +12,7 @@
 
 class Star: public Mass {
 public:
-	Star(float diam, float weig, float xP, float yP);
+	Star(float diam, float weig);
 	virtual ~Star();
 	virtual void draw();
 	virtual float getDiameter();

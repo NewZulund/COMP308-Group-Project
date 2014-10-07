@@ -17,7 +17,7 @@
 class Planet : public Mass{
 public:
 	virtual ~Planet();
-	Planet(float diam, float weig, float xP, float yP);
+	Planet(float diam, float weig);
 	virtual void draw();
 	virtual float getDiameter();
 	virtual float getWeight();

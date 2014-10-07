@@ -82,7 +82,8 @@ int main(int argc, char** argv) {
 	glutTimerFunc(TIMERMSECS, animate, 0);
 
 
-	Planet * plan = new Planet(10,1,1,1);
+	Planet * plan = new Planet(2,1);
+	Star * star = new Star(2,1);
 	planets[0] = plan;
 
 	draw3D();
@@ -101,7 +102,9 @@ void draw3D() {
 	glShadeModel(GL_SMOOTH);
 	glUseProgram(dispProg);
 
+	glPushMatrix();
 	planets[0]->draw();
+	glPopMatrix();
 
 	glPopMatrix();
 
