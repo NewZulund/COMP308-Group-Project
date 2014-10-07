@@ -84,6 +84,7 @@ int main(int argc, char** argv) {
 
 	Planet * plan = new Planet(10,1,1,1);
 	planets[0] = plan;
+
 	draw3D();
 	draw2D();
 	glutMainLoop();

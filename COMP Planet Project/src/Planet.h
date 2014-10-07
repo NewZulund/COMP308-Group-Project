@@ -23,7 +23,6 @@ public:
 	virtual float getWeight();
 	virtual G308_Point getPosition();
 	virtual G308_Point getVelocity();
-	void ReadTexture(const char* filename);
 private:
 	GLuint heightMap;
 	texInfo HMInfo;

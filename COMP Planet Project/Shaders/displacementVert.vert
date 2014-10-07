@@ -4,7 +4,7 @@
 varying vec3 normal, spotLightDir, pointLightDir; 
 varying vec3 dirLightDir, eyeVec, reflecVec;
 
-uniform sampler2D displaceTexture;
+uniform sampler2D curTexture;
 
 void main()
 {	
@@ -18,12 +18,13 @@ void main()
 	
 	eyeVec = -vVertex;
 	
-	//vec4 displacement = vec4((normal * displaceMod), 0.0f);
-
-	gl_Position = ftransform();		
-	
-	//Add Texture
+	//Displace
 	gl_TexCoord[0] = gl_MultiTexCoord0;
+	vec4 dVect = vec4(texture2D(curTexture, gl_TexCoord[0].st).xyz, 1.0f);
+	
+	vec4 ModifiedNormal = vec4(dVect.x * normal.x, dVect.y * normal.y, dVect.z * normal.z, 1.0f);
+	
+	gl_Position = ftransform() + ModifiedNormal;		
 	
 	//Calculate reflection off vert
 	vec3 NN = normalize(normal.xyz);

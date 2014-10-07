@@ -14,10 +14,7 @@ void main (void)
 	vec4 ambiColor = (gl_FrontLightModelProduct.sceneColor * gl_FrontMaterial.ambient) + (gl_LightSource[3].ambient * gl_FrontMaterial.ambient);
 	vec4 textColor = vec4(texture2D(curTexture, gl_TexCoord[0].st).xyz, 1.0f);
 	
-	if(textColor.x == 0.0f && textColor.y == 0.0f && textColor.z == 0.0f){
-		//No Texture Loaded
-		textColor = vec4(1.0f,1.0f,1.0f,1.0f);
-	}
+	
 	
 	vec3 N = normalize(normal);
 	vec3 L = normalize(spotLightDir);
@@ -65,6 +62,7 @@ void main (void)
 	//textColor = textColor + cubeColor;
 
 	vec4 final_color = textColor * (diffColor + ambiColor + specColor);
+	final_color.a = 1.0f;
 	gl_FragColor = final_color;
 			
 }
