@@ -60,4 +60,12 @@ public:
 
 	void RenderGeometry();     // mode : G308_SHADE_POLYGON, G308_SHADE_WIREFRAME
 	void toggleMode(); //Switch between showing filled polygons and wireframes
+
+	void generatePlanetSurface(GLuint steps);
+	void splitSphere();
+	int randInRange(int min, int max);
+
+	G308_Point crossProduct(G308_Point p, G308_Point q);
+	float Magnitude(float x, float y, float z);
+	float dotproduct(G308_Point p, G308_Point q);
 };

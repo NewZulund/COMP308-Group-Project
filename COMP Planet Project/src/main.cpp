@@ -63,10 +63,11 @@ int main(int argc, char** argv) {
 	glutReshapeFunc(reshape);
 	glutMouseFunc(mouse);
 	glutKeyboardFunc(keyboardCall);
+	srand (time(NULL));
 
 	//Initialize GLEW
 	glewInit();
-	initShader(&displVertShader, &displFragShader, "Shaders/displacementVert.vert", "Shaders/displacementFrag.frag", &dispProg);
+	//initShader(&displVertShader, &displFragShader, "Shaders/displacementVert.vert", "Shaders/displacementFrag.frag", &dispProg);
 	initShader(&glowVertShader, &glowFragShader, "Shaders/glowVert.vert", "Shaders/glowFrag.frag", &glowProg);
 
 	setLight();
@@ -101,8 +102,8 @@ void draw3D() {
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 
-	glShadeModel(GL_SMOOTH);
-	glUseProgram(dispProg);
+	glUseProgram(0);
+	glShadeModel(GL_FLAT);
 
 	glPushMatrix();
 	planets[0]->draw();

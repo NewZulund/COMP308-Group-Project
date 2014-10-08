@@ -16,8 +16,10 @@
 #include "G308_Geometry.h"
 #include "G308_ImageLoader.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <time.h>
 
 int material;
 
@@ -251,14 +253,14 @@ void G308_Geometry::CreateGLPolyGeometry() {
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_ALPHA);
 	}
-	glEnable(GL_TEXTURE_2D);
+	//glEnable(GL_TEXTURE_2D);
 
 
 	//Send texture through to Frag shader
 	//glActiveTexture(GL_TEXTURE0 + textureCount);
 	//glGetUniformLocation(programId, texName);
 
-	glBindTexture(GL_TEXTURE_2D, texName);
+	//glBindTexture(GL_TEXTURE_2D, texName);
 
 	int count = 0;
 	int uvModU = 5;
@@ -297,9 +299,85 @@ void G308_Geometry::CreateGLPolyGeometry() {
 
 		glEnd();
 	}
-	glDisable(GL_TEXTURE_2D);
+	//glDisable(GL_TEXTURE_2D);
 	glEndList();
 
+}
+
+
+void G308_Geometry::generatePlanetSurface(GLuint steps){
+	for(int i = 0; i < steps; i++){
+		splitSphere();
+	}
+	printf("Sphere Split and moved \n");
+	CreateGLPolyGeometry();
+
+}
+void G308_Geometry::splitSphere(){
+	//Generate random split
+
+	G308_Point splitVect;
+	GLfloat mag = 99;
+	GLuint count = 0, inMod = 0;
+	GLfloat x,y,z;
+
+
+	while (mag > 1){
+
+		float ranSplit = 1000.0f;
+		x = -1+2*((float)rand())/RAND_MAX;
+		y = -1+2*((float)rand())/RAND_MAX;
+		z = -1+2*((float)rand())/RAND_MAX;
+
+		//printf("%f, %f, %f,\n", x,y,z);
+		mag = Magnitude(x,y,z);
+		inMod = -1+2*((float)rand())/RAND_MAX + 1;
+
+		count++;
+		if (count >= 500){
+			printf("Something is wrong in splitSphere \n");
+			return;
+		}
+	}
+
+	printf("%\d, mod \n", inMod);
+
+	//Random normalized vector
+	splitVect = {x,y,z};
+	//printf("%f, %f, %f, splitVec \n", x,y,z);
+	//printf("%f, %f, %f, Vector \n", splitVect.x,splitVect.y,splitVect.z);
+
+	for (int i = 0; i < m_nNumPolygon; i++) {
+		G308_Point * curPoint = &m_pVertexArray[i];
+		G308_Point modVec = {curPoint->x - splitVect.x, curPoint->y - splitVect.y, curPoint->z - splitVect.z};
+
+		//float dot = dotproduct(splitVect, modVec);
+		float dot = dotproduct(*curPoint, splitVect);
+
+		//printf("%f dot \n", dot);
+
+		float moveOutMod = 0.003f;
+		float moveInMod = 0.003f;
+		if(dot > 0){//In front
+
+			curPoint->x > 0 ? curPoint->x += moveOutMod : curPoint->x -= moveOutMod;
+			curPoint->y > 0 ? curPoint->y += moveOutMod: curPoint->y -= moveOutMod;
+			curPoint->z > 0 ? curPoint->z += moveOutMod : curPoint->z -= moveOutMod;
+
+		}else if(dot < 0){//Behind
+			//printf(">>>%f,%f,%f \n",curPoint->x, curPoint->y, curPoint->z);
+			curPoint->x > 0 ? curPoint->x -= moveInMod : curPoint->x += moveInMod;
+			curPoint->y > 0 ? curPoint->y -= moveInMod : curPoint->y += moveInMod;
+			curPoint->z > 0 ? curPoint->z -= moveInMod : curPoint->z += moveInMod;
+		}
+		//printf(":::: %f,%f,%f \n",curPoint->x, curPoint->y, curPoint->z);
+	}
+
+
+}
+
+float G308_Geometry::Magnitude(float x, float y, float z){
+	return sqrt(pow(x,2) + pow(y,2) + pow(z,2));
 }
 
 void G308_Geometry::CreateGLWireGeometry() {
@@ -308,6 +386,23 @@ void G308_Geometry::CreateGLWireGeometry() {
 void G308_Geometry::toggleMode() {
 
 }
+
+float G308_Geometry::dotproduct(G308_Point p, G308_Point q) {
+	float a = 0;
+	a += p.x * q.x;
+	a += p.y * q.y;
+	a += p.z * q.z;
+	return a;
+}
+
+G308_Point G308_Geometry::crossProduct(G308_Point p, G308_Point q) {
+	G308_Point cross;
+	cross.x = p.y * q.z - p.z * q.y;
+	cross.y = p.z * q.x - p.x * q.z;
+	cross.z = p.x * q.y - p.y * q.x;
+	return cross;
+}
+
 
 void G308_Geometry::RenderGeometry() {
 	if (fn[0] == 'b') {	//bunny
