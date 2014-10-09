@@ -67,7 +67,7 @@ int main(int argc, char** argv) {
 
 	//Initialize GLEW
 	glewInit();
-	//initShader(&displVertShader, &displFragShader, "Shaders/displacementVert.vert", "Shaders/displacementFrag.frag", &dispProg);
+	initShader(&displVertShader, &displFragShader, "Shaders/displacementVert.vert", "Shaders/displacementFrag.frag", &dispProg);
 	initShader(&glowVertShader, &glowFragShader, "Shaders/glowVert.vert", "Shaders/glowFrag.frag", &glowProg);
 
 	setLight();
@@ -102,8 +102,8 @@ void draw3D() {
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 
-	glUseProgram(0);
-	glShadeModel(GL_FLAT);
+	glUseProgram(dispProg);
+	glShadeModel(GL_SMOOTH);
 
 	glPushMatrix();
 	planets[0]->draw();
@@ -175,6 +175,10 @@ void display() {
 	glLoadIdentity();
 	SetCamera();
 	setLight();
+
+	glRotatef(xRot,1,0,0);
+	glRotatef(yRot,0,1,0);
+	glRotatef(zRot,0,0,1);
 
 	draw2D();
 	draw3D();
@@ -265,10 +269,6 @@ void SetCamera() {
 	glLoadIdentity();
 
 	gluLookAt(0.0, 2.5, 50.0 + zoom, 0.0, 2.5, 0.0, 0.0, 1.0, 0.0);
-
-	glRotatef(xRot,1,0,0);
-	glRotatef(yRot,0,1,0);
-	glRotatef(zRot,0,0,1);
 
 }
 

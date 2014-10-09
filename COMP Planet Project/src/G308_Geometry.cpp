@@ -253,14 +253,14 @@ void G308_Geometry::CreateGLPolyGeometry() {
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_ALPHA);
 	}
-	//glEnable(GL_TEXTURE_2D);
+	glEnable(GL_TEXTURE_2D);
 
 
 	//Send texture through to Frag shader
-	//glActiveTexture(GL_TEXTURE0 + textureCount);
+	glActiveTexture(GL_TEXTURE0);
 	//glGetUniformLocation(programId, texName);
 
-	//glBindTexture(GL_TEXTURE_2D, texName);
+	glBindTexture(GL_TEXTURE_2D, texName);
 
 	int count = 0;
 	int uvModU = 5;
@@ -299,7 +299,7 @@ void G308_Geometry::CreateGLPolyGeometry() {
 
 		glEnd();
 	}
-	//glDisable(GL_TEXTURE_2D);
+	glDisable(GL_TEXTURE_2D);
 	glEndList();
 
 }
@@ -340,14 +340,14 @@ void G308_Geometry::splitSphere(){
 		}
 	}
 
-	printf("%\d, mod \n", inMod);
+	//printf("%\d, mod \n", inMod);
 
 	//Random normalized vector
 	splitVect = {x,y,z};
 	//printf("%f, %f, %f, splitVec \n", x,y,z);
 	//printf("%f, %f, %f, Vector \n", splitVect.x,splitVect.y,splitVect.z);
 
-	for (int i = 0; i < m_nNumPolygon; i++) {
+	for (int i = 0; i < m_nNumPoint; i++) {
 		G308_Point * curPoint = &m_pVertexArray[i];
 		G308_Point modVec = {curPoint->x - splitVect.x, curPoint->y - splitVect.y, curPoint->z - splitVect.z};
 
@@ -405,40 +405,5 @@ G308_Point G308_Geometry::crossProduct(G308_Point p, G308_Point q) {
 
 
 void G308_Geometry::RenderGeometry() {
-	if (fn[0] == 'b') {	//bunny
-		GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-		GLfloat mat_shininess[] = { 20.0 };
-		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
-	}else if (fn[2] == 'r') {	//torus
-		GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-		GLfloat mat_shininess[] = { 56.0 };
-		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
-	}else if (fn[1] == 'p') {	//sphere
-		GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-		GLfloat mat_diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
-		GLfloat mat_shininess[] = { 5.0 };
-		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, mat_diffuse);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
-	}else if (fn[1] == 'e') {	//Teapot
-		GLfloat mat_specular[] = { 1, 1, 1, 1.0 };
-		GLfloat mat_shininess[] = { 90.0 };
-		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
-	}else if (fn[1] == 'a') {	//Table
-		GLfloat mat_specular[] = { 1, 1, 1, 1.0 };
-		GLfloat mat_shininess[] = { 14.0 };
-		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
-	}
-	else {
-		GLfloat mat_specular[] = { 0.05, 0.05, 0.05, 1.0 };
-		GLfloat mat_shininess[] = { 56.0 };
-		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
-
-	}
 	glCallList(m_glGeomListPoly);
 }
