@@ -102,14 +102,27 @@ void draw3D() {
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 
-	glUseProgram(dispProg);
-	glShadeModel(GL_SMOOTH);
 
+	glUseProgram(dispProg);
+
+	GLfloat mat[16];
+	glGetFloatv(GL_MODELVIEW_MATRIX, mat);
+	GLfloat transf[4] = {mat[12],mat[13],mat[14], 1.0f};
+	GLint myLoc = glGetUniformLocation(dispProg, "spherePos");
+
+	//glUniform4fv(dispProg, myLoc, 1, transf);
+	//printf("%d disprog, %d myloc \n",dispProg, myLoc);
+
+	glColor3f(1,1,1);
+	glShadeModel(GL_SMOOTH);
 	glPushMatrix();
 	planets[0]->draw();
 	glPopMatrix();
-
 	glUseProgram(glowProg);
+
+
+
+	glColor3f(1,0,0);
 	glPushMatrix();
 	glTranslatef(-10,0,0);
 	planets[1]->draw();

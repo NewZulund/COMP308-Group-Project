@@ -3,6 +3,10 @@
 varying vec3 normal, spotLightDir, pointLightDir;
 varying vec3 dirLightDir, eyeVec, reflecVec;
 uniform sampler2D curTexture;
+
+uniform vec4 spherePos;
+uniform float sphereF;
+
 void main (void)
 {
 vec4 specColor = vec4(0.0f,0.0f,0.0f,1.0f);
@@ -20,11 +24,11 @@ float lambertTerm = dot(N,L);
 if (dot(-L, D) > gl_LightSource[0].spotCosCutoff) {
 if(lambertTerm > 0.0)
 {
-diffColor += gl_LightSource[0].diffuse * gl_FrontMaterial.diffuse * lambertTerm;	
+diffColor += gl_LightSource[0].diffuse * gl_FrontMaterial.diffuse * lambertTerm;
 vec3 E = normalize(eyeVec);
 vec3 R = reflect(-L, N);
 float specular = pow( max(dot(R, E), 0.0), gl_FrontMaterial.shininess );
-specColor += gl_LightSource[0].specular * gl_FrontMaterial.specular * specular;	
+specColor += gl_LightSource[0].specular * gl_FrontMaterial.specular * specular;
 }
 }
 //Point Light
@@ -32,24 +36,24 @@ L = normalize(pointLightDir);
 lambertTerm = dot(N,L);
 if(lambertTerm > 0.0)
 {
-diffColor += gl_LightSource[1].diffuse * gl_FrontMaterial.diffuse * lambertTerm;	
+diffColor += gl_LightSource[1].diffuse * gl_FrontMaterial.diffuse * lambertTerm;
 vec3 E = normalize(eyeVec);
 vec3 R = reflect(-L, N);
 float specular = pow( max(dot(R, E), 0.0), gl_FrontMaterial.shininess );
-specColor += gl_LightSource[1].specular * gl_FrontMaterial.specular * specular;	
+specColor += gl_LightSource[1].specular * gl_FrontMaterial.specular * specular;
 }
 //Direction Light
 L = normalize(dirLightDir);
 lambertTerm = dot(N,L);
 if(lambertTerm > 0.0)
 {
-diffColor += gl_LightSource[2].diffuse * gl_FrontMaterial.diffuse * lambertTerm;	
+diffColor += gl_LightSource[2].diffuse * gl_FrontMaterial.diffuse * lambertTerm;
 vec3 E = normalize(eyeVec);
 vec3 R = reflect(-L, N);
 float specular = pow( max(dot(R, E), 0.0), gl_FrontMaterial.shininess );
-specColor += gl_LightSource[2].specular * gl_FrontMaterial.specular * specular;	
+specColor += gl_LightSource[2].specular * gl_FrontMaterial.specular * specular;
 }
 //textColor = textColor + cubeColor;
-vec4 final_color = textColor * (diffColor + ambiColor + specColor);
+vec4 final_color = diffColor + ambiColor +specColor;
 gl_FragColor = final_color;
 }

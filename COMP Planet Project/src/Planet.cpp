@@ -32,6 +32,8 @@ Planet::Planet(float diam, float weig) {
 }
 
 void Planet::draw(){
+
+
 	glPushMatrix();
 
 	glColor3f(0,1,0);
@@ -48,7 +50,6 @@ void Planet::draw(){
 	//glutSolidSphere(diameter/2,100, 100);
 
 	//glutSolidSphere(50,50,50);
-
 	glPopMatrix();
 }
 
