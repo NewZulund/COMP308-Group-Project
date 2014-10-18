@@ -4,7 +4,7 @@
 varying vec3 normal, spotLightDir, pointLightDir;
 varying vec3 dirLightDir, eyeVec, reflecVec;
 
-uniform vec4 spherePos;
+uniform float planetWidth;
 
 void main()
 {
@@ -22,7 +22,23 @@ void main()
 	//Add Texture
 	gl_TexCoord[0] = gl_MultiTexCoord0;
 
-	gl_Front_Color =  gl_Color;
+	//Determine vertex color
+	vec4 p = gl_Vertex;
+	float distFromCenter = sqrt((p.x * p.x) + (p.y * p.y) + (p.z * p.z));
+	vec4 vertCol = vec4(1.0f,1.0f,1.0f,1);
+
+	if(distFromCenter > 1.09){
+		vertCol = vec4(0.7f,0.7f,0.7f,1);
+	}else if(distFromCenter > 1){
+		vertCol = vec4(0.0f,0.5f,0.0f,1);
+	}else if(distFromCenter > 0.99){
+		vertCol = vec4(0.0f ,0.0f,0.8f,1);
+	}else{
+		vertCol = vec4(0.0f ,0.0f,0.5f,1);
+	}
+	//vertCol = gl_Vertex;
+
+	gl_FrontColor = vertCol;
 
 
 	//Calculate reflection off vert

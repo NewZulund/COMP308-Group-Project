@@ -25,8 +25,8 @@ Planet::Planet(float diam, float weig) {
 	weight = weig;
 
 	model = new G308_Geometry("sphere");
-	model->ReadOBJ("models/sphere.obj");
-	model->generatePlanetSurface(100);
+	model->ReadOBJ("models/10kSphere.obj");
+	model->generatePlanetSurface(1000);
 	//model->ReadTexture("images/heightMap.jpg");
 	//model->CreateGLPolyGeometry();
 }
@@ -35,19 +35,27 @@ void Planet::draw(){
 
 
 	glPushMatrix();
-
-	glColor3f(0,1,0);
-	GLfloat mat_specular[] = { 0.3, 0.3, 0.3, 1.0 };
-	GLfloat mat_diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
-	GLfloat mat_shininess[] = { 5.0 };
-	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, mat_diffuse);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
+	GLfloat land_specular[] = { 0.1, 0.1, 0.1, 1.0 };
+	GLfloat land_diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
+	GLfloat land_shininess[] = { 86.0 };
+	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, land_specular);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, land_diffuse);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, land_shininess);
 
 
-	glScalef(2,2,2);
+	glScalef(diameter / 2, diameter /2, diameter /2);
 	model->RenderGeometry();
-	//glutSolidSphere(diameter/2,100, 100);
+
+	//Render Water
+	glUseProgram(0);
+	glColor3f(0,0,0.8f);
+	GLfloat water_specular[] = { 0.000, 0.000, 0.000, 1.0 };
+	GLfloat water_diffuse[] = { 0.0, 7.0, 0.0, 1.0 };
+	GLfloat water_shininess[] = { 25.0 };
+	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, water_diffuse);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, water_specular);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, water_shininess);
+	glutSolidSphere((diameter / 10.0f), 100, 100);
 
 	//glutSolidSphere(50,50,50);
 	glPopMatrix();

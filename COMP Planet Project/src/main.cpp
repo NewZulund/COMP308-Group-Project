@@ -23,7 +23,7 @@ GLuint g_windowWidth = 1280;
 //Planet Variables
 Mass* planets[20];
 GLuint displFragShader, displVertShader, glowFragShader, glowVertShader;
-GLuint dispProg, glowProg;
+GLuint dispProg;
 
 void display();
 void reshape(int w, int h);
@@ -68,7 +68,6 @@ int main(int argc, char** argv) {
 	//Initialize GLEW
 	glewInit();
 	initShader(&displVertShader, &displFragShader, "Shaders/displacementVert.vert", "Shaders/displacementFrag.frag", &dispProg);
-	initShader(&glowVertShader, &glowFragShader, "Shaders/glowVert.vert", "Shaders/glowFrag.frag", &glowProg);
 
 	setLight();
 	SetCamera();
@@ -84,10 +83,8 @@ int main(int argc, char** argv) {
 	glutTimerFunc(TIMERMSECS, animate, 0);
 
 
-	Planet * plan = new Planet(2,1);
-	Star * star = new Star(2,1);
+	Planet * plan = new Planet(10,1);
 	planets[0] = plan;
-	planets[1] = star;
 
 	draw3D();
 	draw2D();
@@ -102,31 +99,25 @@ void draw3D() {
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 
-
 	glUseProgram(dispProg);
 
 	GLfloat mat[16];
 	glGetFloatv(GL_MODELVIEW_MATRIX, mat);
 	GLfloat transf[4] = {mat[12],mat[13],mat[14], 1.0f};
-	GLint myLoc = glGetUniformLocation(dispProg, "spherePos");
+	GLint spherePos = glGetUniformLocation(dispProg, "spherePos");
+	glUniform4fv(spherePos, 1, transf);
+	GLuint planetWidth = glGetUniformLocation(dispProg, "planetWidth");
+	float diam = planets[0]->diameter;
+	glUniform1fv(planetWidth, 1, (&diam));
 
-	//glUniform4fv(dispProg, myLoc, 1, transf);
-	//printf("%d disprog, %d myloc \n",dispProg, myLoc);
+	//printf("%d disprog, %d myloc, %d planetWidth, %f planet \n",dispProg, spherePos, planetWidth, diam);
 
-	glColor3f(1,1,1);
+	glColor3f(0,0,0);
 	glShadeModel(GL_SMOOTH);
 	glPushMatrix();
 	planets[0]->draw();
 	glPopMatrix();
-	glUseProgram(glowProg);
 
-
-
-	glColor3f(1,0,0);
-	glPushMatrix();
-	glTranslatef(-10,0,0);
-	planets[1]->draw();
-	glPopMatrix();
 
 	glPopMatrix();
 
@@ -180,7 +171,6 @@ void display() {
 	glEnable(GL_COLOR_MATERIAL);
 
 	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-	glColor3f(1.0f, 0.0f, 0.0f); /* set object color as red */
 
 	// [Assignmet1] : render shaded polygon or wireframe
 	//Apply view rotations
@@ -193,8 +183,9 @@ void display() {
 	glRotatef(yRot,0,1,0);
 	glRotatef(zRot,0,0,1);
 
-	draw2D();
+
 	draw3D();
+	draw2D();
 
 	glPopMatrix();
 
@@ -224,8 +215,8 @@ void reshape(int w, int h) {
 // Set Light
 void setLight() {
 	glPushMatrix();
-	float pointposition[] = { 0.0f, 0.0f, 10.0f, 0.0f };
-	float pointdiffuse[] = { 0.6f, 0.2f, 0.2f, 1.0f };
+	float pointposition[] = { 0.0f, 0.0f, 100.0f, 0.0f };
+	float pointdiffuse[] = { 0.6f, 0.6f, 0.6f, 1.0f };
 	float pointambient[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	float pointspecular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
@@ -239,6 +230,8 @@ void setLight() {
 }
 
 void keyboardCall(unsigned char key, int x, int y) {
+	int newPlan = FALSE;
+
 	switch (key) {
 	case 27:
 		exit(0);
@@ -256,16 +249,25 @@ void keyboardCall(unsigned char key, int x, int y) {
 		xRot += 5;
 		break;
 	case ',':
-		zoom += 5;
+		zoom += 0.5;
 		break;
 	case '.':
-		zoom -= 5;
+		zoom -= 0.5;
+		break;
+	case 'r':
 		break;
 	default:
 		break;
 	}
+
+	if(newPlan == TRUE){
+		planets[0] = new Planet(10,1);
+	}
 	glutPostRedisplay();
 }
+
+
+
 
 void mouse(int button, int state, int x, int y) {
 
@@ -281,7 +283,7 @@ void SetCamera() {
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	gluLookAt(0.0, 2.5, 50.0 + zoom, 0.0, 2.5, 0.0, 0.0, 1.0, 0.0);
+	gluLookAt(0.0, 2.5, 50.0 + zoom, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 
 }
 
