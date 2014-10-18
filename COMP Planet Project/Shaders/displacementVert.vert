@@ -15,8 +15,6 @@ void main()
 	vec3 vVertex = vec3(gl_ModelViewMatrix * gl_Vertex);
 
 	spotLightDir = vec3(gl_LightSource[0].position.xyz - vVertex);
-	pointLightDir = vec3(gl_LightSource[1].position.xyz - vVertex);
-	dirLightDir = vec3(gl_LightSource[2].position.xyz);// - vVertex);
 
 	eyeVec = -vVertex;
 
@@ -28,21 +26,13 @@ void main()
 	vec4 p = gl_Vertex;
 	float distFromCenter = sqrt((p.x * p.x) + (p.y * p.y) + (p.z * p.z));
 	vec4 vertCol =  generateColor(distFromCenter);
+	vertCol.a = 1.0f;
 	gl_FrontColor = vertCol;
-
 
 	//Calculate reflection off vert
 	vec3 NN = normalize(normal.xyz);
 	reflecVec = reflect(eyeVec, NN);
 }
-
-
-float getRatio(float p1, float p2, float curVal){
-	float totdif = p1 - p2;
-	float curdif = curVal - p2;
-	return (curdif / totdif);
-}
-
 
 //vec4 DEEPWATER = vec4(0.0f,0.2f,0.5f,1.0f);
 //vec4 SHALLOWWATER = vec4(0.1f,0.3f,0.7f,1.0f);
@@ -58,20 +48,36 @@ vec4 generateColor(float dis){
 	vec4 col2 = vec4(0.5f, 0.5f, 0.5f, 1.0f);
 	float ratio = 0.0f;
 
-	if(dis > 1.03f){
-		return vec4(1.0f,1.0f,1.0f,1.0f);
+	if(dis > 1.06f){
+		col1 = vec4(7.0f,7.0f,7.0f,1.0f);
+		col2 = vec4(0.4f, 0.8f, 0.4f,1.0f);
+		ratio = getRatio(1.06f, 1.05f, dis);
+
+	}else if(dis > 1.05f){
+		col1 = vec4(0.4f, 0.8f, 0.4f,1.0f);
+		col2 = vec4(0.4f, 0.4f, 0.4f,1.0f);
+		ratio = getRatio(1.05f, 1.04f, dis);
+	}else if(dis > 1.04f){
+		col1 = vec4(0.4f, 0.4f, 0.4f,1.0f);
+		col2 =  vec4(0.0f, 0.65f, 0.2f,1.0f);
+		ratio = getRatio(1.04f, 1.029f, dis);
+	}else if(dis > 1.029f){
+		col1 = vec4(0.0f, 0.65f, 0.02f,1.0f);
+		col2 = vec4(0.06f, 0.6f, 0.06f,1.0f);
+		ratio = getRatio(1.04f, 1.029f, dis);
 	}else if(dis > 1.02f){
-		col1 = vec4(0.5f, 0.5f, 0.5f,1.0f);
+		col1 = vec4(0.06f, 0.6f, 0.06f,1.0f);
+		col2 = vec4(0.1f, 0.5f, 0.1f,1.0f);
+		ratio = getRatio(1.029f, 1.02f, dis);
+	}
+	else if(dis > 1.01f){//Green
+		col1 = vec4(0.1f, 0.5f, 0.1f,1.0f);
 		col2 = vec4(0.0f, 0.65f, 0.06f,1.0f);
-		ratio = getRatio(1.5, 1.06f, dis);
-	}else if(dis > 1.01f){
-		col1 = vec4(0.5f, 0.5f, 0.5f,1.0f);
-		col2 = vec4(0.0f, 0.65f, 0.06f,1.0f);
-		ratio = getRatio(1.125, 1.02f, dis);
+		ratio = getRatio(1.02f, 1.01f, dis);
 	}else if(dis > 1.0f){
 		col1 = vec4(0.0f, 0.65f, 0.06f,1.0f);
 		col2 = vec4(0.0f, 0.45f, 0.07f,1.0f);
-		ratio = getRatio(1.09f, 1.0f, dis);
+		ratio = getRatio(1.02f, 1.0f, dis);
 	}else if(dis > 0.99f){
 		col1 = vec4(0.0f, 0.45f, 0.07f,1.0f);
 		col2 = vec4(0.76f,0.69f, 0.5f,1.0f);
@@ -83,15 +89,20 @@ vec4 generateColor(float dis){
 	}else if(dis > 0.5f){
 		col1 = vec4(0.1f,0.3f,0.7f,1.0f);
 		col2 = vec4(0.0f,0.2f,0.5f,1.0f);
-		ratio = getRatio(0.85, 0.5, dis);
+		ratio = getRatio(0.85f, 0.5f, dis);
 	}else{
-		return vec4(0.0f,0.2f,0.5f,1.0f);
+		col1 = vec4(0.0f,0.2f,0.5f,1.0f);
+		col2 = vec4(0.0f,0.0f,0.0f,1.0f);
+		ratio = getRatio(0.85f, 0.5f, dis);
 	}
 
 	vec4 coldif = col1 - col2;
-	vec4 steps = coldif / 100;
-
-	return (col2 + (steps * ratio));
-	//return vec4(0.0f,0.2f,0.5f,1.0f);
+	vertCol =  (col2 + (coldif * ratio));
+	return vertCol;
 }
 
+float getRatio(float p1, float p2, float curVal){
+	float totdif = p1 - p2;
+	float curdif = curVal - p2;
+	return (curdif / totdif);
+}

@@ -11,27 +11,20 @@ void main (void)
 {
 	vec4 specColor = vec4(0.1f,0.1f,0.1f,1.0f);
 	vec4 diffColor = vec4(0.1f,0.1f,0.1f,1.0f);//gl_Color;
-	vec4 ambiColor = vec4(0.0f,0.0f,0.0f,1.0f); //(gl_FrontLightModelProduct.sceneColor * gl_FrontMaterial.ambient) + (gl_LightSource[3].ambient * gl_FrontMaterial.ambient);
+	vec4 ambiColor = (gl_FrontLightModelProduct.sceneColor * gl_FrontMaterial.ambient) + (gl_LightSource[0].ambient * gl_FrontMaterial.ambient);
 	//vec4 textColor = vec4(texture2D(curTexture, gl_TexCoord[0].st).xyz, 1.0f);
 
 	vec3 N = normalize(normal);
 	vec3 L = normalize(spotLightDir);
 	vec3 D = normalize(gl_LightSource[0].spotDirection);
-	float lambertTerm = dot(N,L);
-	if (dot(-L, D) > gl_LightSource[0].spotCosCutoff) {
-	if(lambertTerm > 0.0){
-		diffColor += gl_LightSource[0].diffuse * gl_Color * lambertTerm;
-		vec3 E = normalize(eyeVec);
-		vec3 R = reflect(-L, N);
-		float specular = pow( max(dot(R, E), 0.0), gl_FrontMaterial.shininess );
-		//specColor += gl_LightSource[0].specular * gl_FrontMaterial.specular * specular;
-		}
-	}
 
+	diffColor = gl_Color * max(dot(N,L), 0.0);
+	diffColor = clamp(diffColor, 0.0, 1.0);
 
-	//textColor = textColor + cubeColor;
+	//specColor = gl_LightSource[0].specular * pow(max(dot(D,E),0.0),0.3 * gl_FrontMaterial.shininess);
+	//specColor = clamp(specColor, 0.0, 1.0);
+
 	vec4 final_color = diffColor + ambiColor +specColor;
-	//gl_FragColor = final_color;
 	gl_FragColor = final_color;
 
 }

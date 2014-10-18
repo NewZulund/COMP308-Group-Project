@@ -217,7 +217,7 @@ void setLight() {
 	glPushMatrix();
 	float pointposition[] = { 0.0f, 0.0f, 100.0f, 0.0f };
 	float pointdiffuse[] = { 0.6f, 0.6f, 0.6f, 1.0f };
-	float pointambient[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	float pointambient[] = { 0.1f, 0.1f, 0.1f, 1.0f };
 	float pointspecular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 	glLightfv(GL_LIGHT0, GL_POSITION, pointposition);

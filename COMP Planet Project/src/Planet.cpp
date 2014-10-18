@@ -37,11 +37,10 @@ void Planet::draw(){
 	glPushMatrix();
 	GLfloat land_specular[] = { 0.1, 0.1, 0.1, 1.0 };
 	GLfloat land_diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
-	GLfloat land_shininess[] = { 86.0 };
+	GLfloat land_shininess[] = { 25.0 };
 	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, land_specular);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, land_diffuse);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, land_shininess);
-
 
 	glScalef(diameter / 2, diameter /2, diameter /2);
 	model->RenderGeometry();
