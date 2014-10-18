@@ -25,7 +25,7 @@ Planet::Planet(float diam, float weig) {
 	weight = weig;
 
 	model = new G308_Geometry("sphere");
-	model->ReadOBJ("models/10kSphere.obj");
+	model->ReadOBJ("models/sphere.obj");
 	model->generatePlanetSurface(1000);
 	//model->ReadTexture("images/heightMap.jpg");
 	//model->CreateGLPolyGeometry();
@@ -55,7 +55,10 @@ void Planet::draw(){
 	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, water_diffuse);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, water_specular);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, water_shininess);
-	glutSolidSphere((diameter / 10.0f), 100, 100);
+
+	glColor4f(0.5f,0.5f,1.0f, 0.9f);
+	glutSolidSphere((diameter / 10.05f), 100, 100);
+
 
 	//glutSolidSphere(50,50,50);
 	glPopMatrix();

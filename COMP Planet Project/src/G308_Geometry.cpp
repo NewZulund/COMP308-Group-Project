@@ -359,27 +359,23 @@ void G308_Geometry::splitSphere() {
 
 		float randNum = -1 + 2 * ((float) rand()) / RAND_MAX;	// -1 - 1
 
+
+
 		//printf("%f rand \n", randNum);
 
-		float moveOutMod = 0.001f;
-		float moveInMod = 0.001f;
+		float moveOutMod = 1.0005f;
+		float moveInMod = 0.9995f;
 		if (dot > 0) {	//In front
 
-			curPoint->x > 0 ? curPoint->x += moveOutMod : curPoint->x -=
-										moveOutMod;
-			curPoint->y > 0 ? curPoint->y += moveOutMod : curPoint->y -=
-										moveOutMod;
-			curPoint->z > 0 ? curPoint->z += moveOutMod : curPoint->z -=
-										moveOutMod;
+			curPoint->x *= moveOutMod;
+			curPoint->y *= moveOutMod;
+			curPoint->z *= moveOutMod;
 
-		} else if (dot < 0) {
-			//printf(">>>%f,%f,%f \n",curPoint->x, curPoint->y, curPoint->z);
-			curPoint->x > 0 ? curPoint->x -= moveInMod : curPoint->x +=
-										moveInMod;
-			curPoint->y > 0 ? curPoint->y -= moveInMod : curPoint->y +=
-										moveInMod;
-			curPoint->z > 0 ? curPoint->z -= moveInMod : curPoint->z +=
-										moveInMod;
+		} else if (dot <= 0) {
+
+			curPoint->x *= moveInMod;
+			curPoint->y *= moveInMod;
+			curPoint->z *= moveInMod;
 		}
 		//printf(":::: %f,%f,%f \n",curPoint->x, curPoint->y, curPoint->z);
 	}
