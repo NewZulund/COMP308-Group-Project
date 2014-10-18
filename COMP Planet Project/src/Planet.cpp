@@ -56,7 +56,7 @@ void Planet::draw(){
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, water_shininess);
 
 	glColor4f(0.5f,0.5f,1.0f, 0.9f);
-	glutSolidSphere((diameter / 10.05f), 100, 100);
+	glutSolidSphere(1, 100, 100);
 
 
 	//glutSolidSphere(50,50,50);
