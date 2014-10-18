@@ -21,7 +21,7 @@ void main (void)
 	diffColor = gl_Color * max(dot(N,L), 0.0);
 	diffColor = clamp(diffColor, 0.0, 1.0);
 
-	//specColor = gl_LightSource[0].specular * pow(max(dot(D,E),0.0),0.3 * gl_FrontMaterial.shininess);
+	//specColor = gl_LightSource[0].specular ;//* pow(max(dot(D,E),0.0f), 0.3f * gl_FrontMaterial.shininess);
 	//specColor = clamp(specColor, 0.0, 1.0);
 
 	vec4 final_color = diffColor + ambiColor +specColor;
