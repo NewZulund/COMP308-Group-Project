@@ -19,6 +19,20 @@ public:
 	virtual float getWeight();
 	virtual G308_Point getPosition();
 	virtual G308_Point getVelocity();
+	void draw(int windowWidth, int windowHeight);
+
+private:
+	float angle;//MIGHT NOT KEEP
+	GLuint blurTexture;
+
+	void renderToTexture();
+	void processStar();
+	void drawBlur(int times, float inc);
+	GLuint emptyTexture();
+	void orthoView();
+	void perspectiveView();
+	int initialize();
+	void deInitialize();
 };
 
 #endif /* STAR_H_ */
