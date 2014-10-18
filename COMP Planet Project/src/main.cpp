@@ -22,8 +22,8 @@ GLuint g_windowWidth = 1280;
 
 //Planet Variables
 Mass* planets[20];
-GLuint earthFrag, earthShader;
-GLuint dispProg;
+GLuint earthFrag, earthShader, skyVert, skyFrag;;
+GLuint dispProg, skyProg;
 
 void display();
 void reshape(int w, int h);
@@ -40,9 +40,13 @@ void animate(int);
 void mouseFunc(int button, int state, int x, int y);
 
 void mouseMove(int x, int y);
-void panCamera(int,int,int,int);
-void zoomCamera(int oldMouseX, int oldMouseY,int x,int y);
-void rotateCamera(int oldMouseX, int oldMouseY,int x,int y);
+void panCamera(int, int, int, int);
+void zoomCamera(int oldMouseX, int oldMouseY, int x, int y);
+void rotateCamera(int oldMouseX, int oldMouseY, int x, int y);
+
+void createCubemap();
+void createCubeMapModel();
+void drawEnvironmentMap();
 
 void initShader(GLuint * v, GLuint * f, char * vertFile, char * fragFile,
 		GLuint * prog);
@@ -50,23 +54,19 @@ void initShader(GLuint * v, GLuint * f, char * vertFile, char * fragFile,
 static int TIMERMSECS = 50;
 
 // angle of rotation for the camera direction
-float angle= 0.0, angleY = 0.0f;
-float xOffset = 0.0f, yOffset = 0.0f, zOffset= 0.0f;
+float angle = 0.0, angleY = 0.0f;
+float xOffset = 0.0f, yOffset = 0.0f, zOffset = 0.0f;
 float yRot = 0.0f, zRot = 0.0f, xRot = 0;
 
-
-float lx=0.0f,lz=-1.0f, ly = 0.0f;
-float x=0.0f,z=5.0f, y = 0.0f;
+float lx = 0.0f, lz = -1.0f, ly = 0.0f;
+float x = 0.0f, z = 5.0f, y = 0.0f;
 float zoom = 0.0f;
 float deltaAngle = 0.0f;
 int xOrigin = -1;
 
-
-void mouseMenu(int);
-MENU_TYPE animMode = MENU_STOP;
-
-//static const int TRUE = 1;
-//static const int FALSE = 0;
+GLuint cubeMapTex;
+GLuint * tex_cube = NULL;
+GLuint vbo ,vao;
 
 int main(int argc, char** argv) {
 	glutInit(&argc, argv);
@@ -85,21 +85,19 @@ int main(int argc, char** argv) {
 	initShader(&earthShader, &earthFrag, "Shaders/displacementVert.vert",
 			"Shaders/displacementFrag.frag", &dispProg);
 
-	setLight();
-	SetCamera();
-
-	//Mouse Menu
-//	glutCreateMenu(mouseMenu);
-//	glutAddMenuEntry("Play", MENU_PLAY);
-//	glutAddMenuEntry("Pause", MENU_PAUSE);
-//	glutAddMenuEntry("Stop", MENU_STOP);
-//	glutAddMenuEntry("Reset", MENU_RESET);
-//	glutAttachMenu(GLUT_RIGHT_BUTTON);
-//	glutTimerFunc(TIMERMSECS, animate, 0);
+	printf("Shader \n");
+	initShader(&skyVert, &skyFrag, "Shaders/skymap.vert", "Shaders/skymap.frag", &skyProg);
 
 	Planet * plan = new Planet(10, 1);
 	planets[0] = plan;
+	printf("Shader is \n");
+	createCubemap();
 
+	printf("Shader is working \n");
+
+	setLight();
+	SetCamera();
+	printf("Shader is working123123 \n");
 	draw3D();
 	draw2D();
 	glutMainLoop();
@@ -109,6 +107,7 @@ int main(int argc, char** argv) {
 
 void draw3D() {
 	glutSetWindow(g_mainWind);
+
 
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
@@ -212,11 +211,11 @@ int oldMouseX;
 int oldMouseY;
 
 void mouseFunc(int button, int state, int x, int y) {
-	if(state == GLUT_DOWN){
+	if (state == GLUT_DOWN) {
 		keyDown = button;
 		keyMod = glutGetModifiers();
 		//printf("Key down %d\n", keyDown);
-	}else{
+	} else {
 		keyDown = -1;
 		keyMod = -1;
 	}
@@ -227,27 +226,27 @@ void mouseFunc(int button, int state, int x, int y) {
 	glutPostRedisplay();
 }
 
-void mouseMove(int x, int y){
+void mouseMove(int x, int y) {
 
 	//printf("%d \n", keyDown);
-	if(keyDown == -1){
+	if (keyDown == -1) {
 		return;
 	}
 	//printf("Key down and moved \n");
-	if(keyDown == GLUT_RIGHT_BUTTON){
+	if (keyDown == GLUT_RIGHT_BUTTON) {
 
-		if (keyMod == GLUT_ACTIVE_SHIFT){
-			panCamera(oldMouseX, oldMouseY, x,y);
+		if (keyMod == GLUT_ACTIVE_SHIFT) {
+			panCamera(oldMouseX, oldMouseY, x, y);
 
-		}else if(keyMod == GLUT_ACTIVE_CTRL){
-			zoomCamera(oldMouseX, oldMouseY, x,y);
+		} else if (keyMod == GLUT_ACTIVE_CTRL) {
+			zoomCamera(oldMouseX, oldMouseY, x, y);
 
-		}else {
+		} else {
 
 		}
-	}else if (keyDown == GLUT_LEFT_BUTTON){
+	} else if (keyDown == GLUT_LEFT_BUTTON) {
 		//printf("Rotating \n");
-		rotateCamera(oldMouseX, oldMouseY, x,y);
+		rotateCamera(oldMouseX, oldMouseY, x, y);
 	}
 
 	oldMouseX = x;
@@ -333,17 +332,16 @@ void keyboardCall(unsigned char key, int x, int y) {
 
 void mouse(int button, int state, int x, int y) {
 	// only start motion if the left button is pressed
-		if (button == GLUT_LEFT_BUTTON) {
+	if (button == GLUT_LEFT_BUTTON) {
 
-			// when the button is released
-			if (state == GLUT_UP) {
-				angle += deltaAngle;
-				xOrigin = -1;
-			}
-			else  {// state = GLUT_DOWN
-				xOrigin = x;
-			}
+		// when the button is released
+		if (state == GLUT_UP) {
+			angle += deltaAngle;
+			xOrigin = -1;
+		} else { // state = GLUT_DOWN
+			xOrigin = x;
 		}
+	}
 
 	glutPostRedisplay();
 }
@@ -359,12 +357,26 @@ void SetCamera() {
 
 	//gluLookAt(0.0, 2.5, 50.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 
-	gluLookAt(	x, 1.0f, 50 + z,x+lx, 1.0f,  z+lz,0.0f, 1.0f,  0.0f);
+	float camPosX = x;
+	float camPosY = 1.0f;
+	float camPosZ = 50 + z;
 
-	glRotatef(xRot,1,0,0);
-	glRotatef(yRot,0,1,0);
-	glRotatef(zRot,0,0,1);
-	glTranslatef(xOffset,yOffset,zOffset);
+	gluLookAt(camPosX, camPosY, camPosZ, x + lx, 1.0f, z + lz, 0.0f, 1.0f, 0.0f);
+
+	glRotatef(xRot, 1, 0, 0);
+	glRotatef(yRot, 0, 1, 0);
+	glRotatef(zRot, 0, 0, 1);
+
+
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glTranslatef(camPosX, camPosY, camPosZ);
+	//glScalef(10,10,10);
+	drawEnvironmentMap();
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+
+	glTranslatef(xOffset, yOffset, zOffset);
 }
 
 void redisplay() {
@@ -433,7 +445,7 @@ void drawText(char * words, float x, float y) {
 	glPopMatrix();
 }
 
-void panCamera(int oldMouseX,int oldMouseY,int x,int y){
+void panCamera(int oldMouseX, int oldMouseY, int x, int y) {
 
 	float xOff = -(x - oldMouseX) / 100.0f;
 	float yOff = -(y - oldMouseY) / 100.0f;
@@ -442,19 +454,117 @@ void panCamera(int oldMouseX,int oldMouseY,int x,int y){
 
 }
 
-void zoomCamera(int oldMouseX, int oldMouseY,int x,int y){
+void zoomCamera(int oldMouseX, int oldMouseY, int x, int y) {
 	zoom += (oldMouseY - y) / 100.0f;
 }
 
-void rotateCamera(int oldMouseX, int oldMouseY,int x,int y){
+void rotateCamera(int oldMouseX, int oldMouseY, int x, int y) {
 	//Flip axis;
 	yRot += -(oldMouseX - x) / 10.0f;
 	xRot += -(oldMouseY - y) / 10.0f;
-
 
 	//angle += 0.01f;
 	//lx = sin(angle);
 	//lz = -cos(angle);
 
+}
+
+void createCubemap() {
+	tex_cube = (GLuint*) malloc(sizeof(GLuint) * 8);
+
+	TextureInfo front;
+	loadTextureFromJPEG("images/posz.jpg", &front);
+	TextureInfo back;
+	loadTextureFromJPEG("images/posx.jpg", &back);
+	TextureInfo left;
+	loadTextureFromJPEG("images/posy.jpg", &left);
+	TextureInfo right;
+	loadTextureFromJPEG("images/negx.jpg", &right);
+	TextureInfo top;
+	loadTextureFromJPEG("images/negy.jpg", &top);
+	TextureInfo bottom;
+	loadTextureFromJPEG("images/negz.jpg", &bottom);
+	glEnable(GL_TEXTURE_CUBE_MAP);
+	glActiveTexture(GL_TEXTURE0);
+	GLuint height = 1024;
+	GLuint width = 1024;
+	glGenTextures(1, tex_cube);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, *tex_cube);
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGBA, height, width, 0,
+	GL_RGB,
+	GL_UNSIGNED_BYTE, right.textureData);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, *tex_cube);
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGBA, height, width, 0,
+	GL_RGB,
+	GL_UNSIGNED_BYTE, left.textureData);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, *tex_cube);
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGBA, height, width, 0,
+	GL_RGB,
+	GL_UNSIGNED_BYTE, bottom.textureData);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, *tex_cube);
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGBA, height, width, 0,
+	GL_RGB,
+	GL_UNSIGNED_BYTE, top.textureData);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, *tex_cube);
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGBA, height, width, 0,
+	GL_RGB,
+	GL_UNSIGNED_BYTE, front.textureData);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, *tex_cube);
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGBA, height, width, 0,
+	GL_RGB,
+	GL_UNSIGNED_BYTE, back.textureData);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glDisable(GL_TEXTURE_CUBE_MAP);
+	createCubeMapModel();
+}
+
+/*
+ * Code from antongerdelan.net
+ */
+void createCubeMapModel() {
+	float points[] = { -30.0f, 30.0f, -30.0f, -30.0f, -30.0f, -30.0f, 30.0f,
+
+	-30.0f, -30.0f, 30.0f, -30.0f, -30.0f, 30.0f, 30.0f, -30.0f, -30.0f, 30.0f,
+			-30.0f, -30.0f, -30.0f, 30.0f, -30.0f, -30.0f, -30.0f, -30.0f,
+			30.0f, -30.0f, -30.0f, 30.0f, -30.0f, -30.0f, 30.0f, 30.0f, -30.0f,
+			-30.0f, 30.0f, 30.0f, -30.0f, -30.0f, 30.0f, -30.0f, 30.0f, 30.0f,
+			30.0f, 30.0f, 30.0f, 30.0f, 30.0f, 30.0f, 30.0f, -30.0f, 30.0f,
+			-30.0f, -30.0f, -30.0f, -30.0f, 30.0f, -30.0f, 30.0f, 30.0f, 30.0f,
+			30.0f, 30.0f, 30.0f, 30.0f, 30.0f, 30.0f, -30.0f, 30.0f, -30.0f,
+			-30.0f, 30.0f, -30.0f, 30.0f, -30.0f, 30.0f, 30.0f, -30.0f, 30.0f,
+			30.0f, 30.0f, 30.0f, 30.0f, 30.0f, -30.0f, 30.0f, 30.0f, -30.0f,
+			30.0f, -30.0f, -30.0f, -30.0f, -30.0f, -30.0f, -30.0f, 30.0f, 30.0f,
+			-30.0f, -30.0f, 30.0f, -30.0f, -30.0f, -30.0f, -30.0f, 30.0f, 30.0f,
+			-30.0f, 30.0f };
+
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, 3 * 36 * sizeof(float), &points,
+	GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray (vao);
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+}
+
+void drawEnvironmentMap() {
+	glDepthMask(GL_FALSE);
+	glUseProgram (skyProg);
+	glActiveTexture(GL_TEXTURE0);
+
+
+	glBindTexture(GL_TEXTURE_CUBE_MAP, *tex_cube);
+
+
+	glBindVertexArray (vao);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glDepthMask(GL_TRUE);
 }
 
