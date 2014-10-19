@@ -473,21 +473,21 @@ void createCubemap() {
 	tex_cube = (GLuint*) malloc(sizeof(GLuint) * 8);
 
 	TextureInfo front;
-	loadTextureFromJPEG("images/posz.jpg", &front);
+	loadTextureFromJPEG("images/hidef/posz.jpg", &front);
 	TextureInfo back;
-	loadTextureFromJPEG("images/posx.jpg", &back);
+	loadTextureFromJPEG("images/hidef/posx.jpg", &back);
 	TextureInfo left;
-	loadTextureFromJPEG("images/posy.jpg", &left);
+	loadTextureFromJPEG("images/hidef/posy.jpg", &left);
 	TextureInfo right;
-	loadTextureFromJPEG("images/negx.jpg", &right);
+	loadTextureFromJPEG("images/hidef/negx.jpg", &right);
 	TextureInfo top;
-	loadTextureFromJPEG("images/negy.jpg", &top);
+	loadTextureFromJPEG("images/hidef/negy.jpg", &top);
 	TextureInfo bottom;
-	loadTextureFromJPEG("images/negz.jpg", &bottom);
+	loadTextureFromJPEG("images/hidef/negz.jpg", &bottom);
 	glEnable(GL_TEXTURE_CUBE_MAP);
 	glActiveTexture(GL_TEXTURE0);
-	GLuint height = 1024;
-	GLuint width = 1024;
+	GLuint height = 2048;
+	GLuint width = 2048;
 	glGenTextures(1, tex_cube);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, *tex_cube);
 	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGBA, height, width, 0,
@@ -559,9 +559,7 @@ void drawEnvironmentMap() {
 	glUseProgram (skyProg);
 	glActiveTexture(GL_TEXTURE0);
 
-
 	glBindTexture(GL_TEXTURE_CUBE_MAP, *tex_cube);
-
 
 	glBindVertexArray (vao);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
